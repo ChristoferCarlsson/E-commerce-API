@@ -1,4 +1,4 @@
-﻿namespace WebApplication5.DTOs
+﻿namespace WebApplication5.DTO
 {
     public class UserDto
     {

@@ -4,8 +4,9 @@
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
     using System.Text;
+    using WebApplication5.Interface;  // Import the ITokenService interface
 
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly string _secretKey;
         private readonly string _issuer;
@@ -18,7 +19,6 @@
             _audience = configuration["Jwt:Audience"];
         }
 
-        // Modified method to accept role as a parameter
         public string GenerateToken(string username, string role)
         {
             var claims = new[]
