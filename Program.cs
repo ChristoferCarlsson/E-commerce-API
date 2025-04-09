@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApplication5.Interface;
+using WebApplication5.Interfaces;
 using WebApplication5.Models;
 using WebApplication5.Services;
+using WebApplication5.Validator;
 
 namespace WebApplication5
 {
@@ -24,7 +27,16 @@ namespace WebApplication5
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<ProductDtoValidator>();
-            builder.Services.AddHttpClient<ExternalApiService>();
+            builder.Services.AddHttpClient<IExternalApiService, ExternalApiService>();
+
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+
+
+
+
 
             // Add JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

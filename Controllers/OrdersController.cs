@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using WebApplication5.Interface;
 using WebApplication5.Models;
 
 namespace WebApplication5.Controllers
@@ -8,32 +8,31 @@ namespace WebApplication5.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly EcommerceDbContext _context;
+        private readonly IOrderService _orderService;
 
-        public OrdersController(EcommerceDbContext context)
+        public OrdersController(IOrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
         // GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-
+            var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
             }
-
-            return order;
+            return Ok(order);
         }
 
         // PUT: api/Orders/5
@@ -45,22 +44,17 @@ namespace WebApplication5.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(order).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _orderService.UpdateOrderAsync(order);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!OrderExists(id))
+                if (!_orderService.OrderExists(id))
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -70,9 +64,7 @@ namespace WebApplication5.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
+            await _orderService.CreateOrderAsync(order);
             return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
 
@@ -80,21 +72,14 @@ namespace WebApplication5.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
+            await _orderService.DeleteOrderAsync(id);
             return NoContent();
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

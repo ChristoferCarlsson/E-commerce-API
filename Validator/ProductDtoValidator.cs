@@ -1,7 +1,7 @@
-﻿namespace WebApplication5
+﻿namespace WebApplication5.Validator
 {
     using FluentValidation;
-    using WebApplication5.DTOs;
+    using WebApplication5.DTO;
 
     public class ProductDtoValidator : AbstractValidator<ProductDto>
     {

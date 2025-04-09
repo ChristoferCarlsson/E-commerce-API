@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication5.Services;
+using WebApplication5.Interface;
+using WebApplication5.Interfaces;
 
 namespace WebApplication5.Controllers
 {
@@ -7,9 +8,9 @@ namespace WebApplication5.Controllers
     [ApiController]
     public class ExternalApiController : ControllerBase
     {
-        private readonly ExternalApiService _externalApiService;
+        private readonly IExternalApiService _externalApiService;
 
-        public ExternalApiController(ExternalApiService externalApiService)
+        public ExternalApiController(IExternalApiService externalApiService)
         {
             _externalApiService = externalApiService;
         }

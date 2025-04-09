@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text;
-using WebApplication5.DTOs;
+using WebApplication5.DTO;
+using WebApplication5.Interface;
 using WebApplication5.Models;
 
 namespace WebApplication5.Controllers
@@ -11,11 +10,11 @@ namespace WebApplication5.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly EcommerceDbContext _context;
+        private readonly IUserService _userService;
 
-        public UsersController(EcommerceDbContext context)
+        public UsersController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         // GET: api/Users
@@ -23,7 +22,7 @@ namespace WebApplication5.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _userService.GetUsersAsync();
             return Ok(users);
         }
 
@@ -36,29 +35,15 @@ namespace WebApplication5.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == userDto.Username);
-            if (existingUser != null)
+            try
             {
-                return BadRequest("Username already exists.");
+                var newUser = await _userService.CreateUserAsync(userDto);
+                return CreatedAtAction("GetUser", new { id = newUser.Id }, newUser);
             }
-
-            string salt = BCrypt.Net.BCrypt.GenerateSalt();
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password, salt);
-
-            var newUser = new User
+            catch (InvalidOperationException ex)
             {
-                Username = userDto.Username,
-                Email = userDto.Email,
-                PasswordHash = Encoding.UTF8.GetBytes(passwordHash),
-                PasswordSalt = Encoding.UTF8.GetBytes(salt),
-                Role = "user"
-            };
-
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = newUser.Id }, newUser);
+                return BadRequest(ex.Message); // Username already exists
+            }
         }
-
     }
 }

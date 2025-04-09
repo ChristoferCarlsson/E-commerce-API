@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication5.DTOs;
-using WebApplication5.Services;
+using WebApplication5.DTO;
+using WebApplication5.Interface;  // Use ITokenService interface
 
 namespace WebApplication5.Controllers
 {
@@ -9,16 +9,15 @@ namespace WebApplication5.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
         private readonly IValidator<UserDto> _userDtoValidator;
 
-        public AuthController(TokenService tokenService, IValidator<UserDto> userDtoValidator)
+        public AuthController(ITokenService tokenService, IValidator<UserDto> userDtoValidator)
         {
             _tokenService = tokenService;
             _userDtoValidator = userDtoValidator;
         }
 
-        // POST: api/auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserDto userDto)
         {
@@ -28,12 +27,10 @@ namespace WebApplication5.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            // Assuming the logic for registering a user goes here
-            var token = _tokenService.GenerateToken(userDto.Username, "user");  // Assume "user" role for now
+            var token = _tokenService.GenerateToken(userDto.Username, "user");
             return Ok(new { Token = token });
         }
 
-        // POST: api/auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserDto userDto)
         {
@@ -43,7 +40,6 @@ namespace WebApplication5.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            // Assuming the logic for login goes here
             var token = _tokenService.GenerateToken(userDto.Username, "user");
             return Ok(new { Token = token });
         }
