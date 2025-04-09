@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebApplication5.Interface;
 using WebApplication5.Models;
 
 namespace WebApplication5.Services

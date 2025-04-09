@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text;
+using WebApplication5.DTO;
 using WebApplication5.Interface;
 using WebApplication5.Models;
-using System.Text;
-using BCrypt.Net;
-using WebApplication5.DTO;
 
 namespace WebApplication5.Services
 {
